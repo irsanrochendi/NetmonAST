@@ -1,0 +1,107 @@
+version: "3.9"
+
+services:
+  # ── TimescaleDB (PostgreSQL + TimescaleDB extension) ──────────────
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    container_name: netmon-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-netmon}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-netmon_secret}
+      POSTGRES_DB: ${DB_NAME:-netmon}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - timescale_data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-netmon} -d ${DB_NAME:-netmon}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── NetMon API (FastAPI) ───────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: netmon-api
+    restart: unless-stopped
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${DB_USER:-netmon}:${DB_PASSWORD:-netmon_secret}@timescaledb:5432/${DB_NAME:-netmon}
+      SECRET_KEY: ${SECRET_KEY:-change_me_use_openssl_rand_hex_32}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      ALERT_FROM_EMAIL: ${ALERT_FROM_EMAIL:-netmon@local}
+    ports:
+      - "${API_PORT:-8000}:8000"
+    volumes:
+      - ./backend/app:/app/app
+
+  # ── SNMP Poller ────────────────────────────────────────────────────
+  snmp-poller:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: netmon-snmp-poller
+    restart: unless-stopped
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: psycopg2://${DB_USER:-netmon}:${DB_PASSWORD:-netmon_secret}@timescaledb:5432/${DB_NAME:-netmon}
+      POLL_INTERVAL: ${SNMP_POLL_INTERVAL:-60}
+    command: ["python", "-m", "app.workers.snmp_poller"]
+    volumes:
+      - ./backend/app:/app/app
+
+  # ── ESXi Poller ────────────────────────────────────────────────────
+  esxi-poller:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: netmon-esxi-poller
+    restart: unless-stopped
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: psycopg2://${DB_USER:-netmon}:${DB_PASSWORD:-netmon_secret}@timescaledb:5432/${DB_NAME:-netmon}
+      POLL_INTERVAL: ${ESXI_POLL_INTERVAL:-120}
+    command: ["python", "-m", "app.workers.esxi_poller"]
+    volumes:
+      - ./backend/app:/app/app
+
+  # ── Alert Worker ───────────────────────────────────────────────────
+  alert-worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: netmon-alert-worker
+    restart: unless-stopped
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: psycopg2://${DB_USER:-netmon}:${DB_PASSWORD:-netmon_secret}@timescaledb:5432/${DB_NAME:-netmon}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      ALERT_FROM_EMAIL: ${ALERT_FROM_EMAIL:-netmon@local}
+    command: ["python", "-m", "app.workers.alert_worker"]
+    volumes:
+      - ./backend/app:/app/app
+
+volumes:
+  timescale_data:

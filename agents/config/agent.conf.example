@@ -1,0 +1,6 @@
+[agent]
+# NetMon Agent Configuration
+# server_url = http://your-netmon-server:8000
+# agent_token = YOUR_AGENT_TOKEN_HERE
+# poll_interval = 30
+# request_timeout = 10

@@ -1,0 +1,3 @@
+# NetMon Linux Agent Requirements
+psutil>=5.9
+httpx>=0.27
