@@ -231,5 +231,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Content-Security-Policy"] = "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:;"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-        response.headers.pop("server", None)
+        # Remove server header
+        if "server" in response.headers:
+            del response.headers["server"]
         return response
