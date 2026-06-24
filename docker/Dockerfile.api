@@ -1,11 +1,11 @@
 # syntax=docker/dockerfile:1
-FROM python:3.11-slim
+FROM python:3.11-bookworm-slim
 
 WORKDIR /app
 
 # System deps for psycopg2, SNMP, etc.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc libsnmp-dev libpq-dev libpq5 \
+    gcc libsnmp-dev libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY backend/requirements.txt .
