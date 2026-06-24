@@ -5,7 +5,7 @@ WORKDIR /app
 
 # System deps for psycopg2, SNMP, etc.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc libsnmp-dev snmp-mibs-downloader \
+    gcc libsnmp-dev \
     && rm -rf /var/lib/apt/lists/*
 
 COPY backend/requirements.txt .
