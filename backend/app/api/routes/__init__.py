@@ -22,6 +22,7 @@ from app.models import (
     DeviceStatus, SeverityLevel, UserRole,
 )
 from app.security import CredentialEncryptor, get_encryptor, validate_device_input
+from .export import export_router
 from app.schemas import (
     AgentMetricPayload, AgentRegisterRequest, AgentRegisterResponse,
     AlertAcknowledge, AlertRuleCreate, AlertRuleResponse,
