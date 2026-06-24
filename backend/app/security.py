@@ -222,6 +222,9 @@ agent_limiter = RateLimiter(max_requests=300, window_seconds=60)  # Agent push (
 class SecurityHeadersMiddleware:
     """Add security headers to all responses."""
 
+    def __init__(self, app):
+        self.app = app
+
     async def __call__(self, request: Request, call_next):
         response = await call_next(request)
 
