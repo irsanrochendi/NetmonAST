@@ -219,6 +219,8 @@ agent_limiter = RateLimiter(max_requests=300, window_seconds=60)  # Agent push (
 
 # ── Security Headers Middleware ─────────────────────────────────────
 
+from starlette.middleware.base import BaseHTTPMiddleware
+
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """Add security headers to all responses."""
 

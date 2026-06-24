@@ -22,7 +22,7 @@ from app.api.routes import (
     maintenance_router,
     metric_router,
 )
-from starlette.middleware.base import BaseHTTPMiddleware
+from app.security import SecurityHeadersMiddleware, api_limiter, auth_limiter
 
 logging.basicConfig(
     level=logging.INFO,
