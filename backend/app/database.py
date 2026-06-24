@@ -36,7 +36,8 @@ async def get_db() -> AsyncSession:
 
 
 # ── Sync engine (for poller workers) ───────────────────────────────
-_sync_url = settings.database_url.replace("postgresql+asyncpg", "postgresql+psycopg2").replace("postgresql+aiosqlite", "sqlite")
+# ── Sync engine (for poller workers) ───────────────────────────────
+_sync_url = settings.database_url.replace("postgresql+asyncpg", "postgresql").replace("postgresql+aiosqlite", "sqlite")
 sync_engine = create_engine(_sync_url, pool_size=10, max_overflow=5, pool_pre_ping=True)
 SyncSessionLocal = sessionmaker(bind=sync_engine, expire_on_commit=False)
 
