@@ -550,13 +550,13 @@ async def get_overview(
 ):
     total = (await db.execute(select(func.count(Device.id)).where(Device.is_active == True))).scalar() or 0
     up = (await db.execute(
-        select(func.count(Device.id)).where(Device.is_active == True, Device.status == DeviceStatus.UP.value)
+        select(func.count(Device.id)).where(Device.is_active == True, Device.status == DeviceStatus.UP)
     )).scalar() or 0
     down = (await db.execute(
-        select(func.count(Device.id)).where(Device.is_active == True, Device.status == DeviceStatus.DOWN.value)
+        select(func.count(Device.id)).where(Device.is_active == True, Device.status == DeviceStatus.DOWN)
     )).scalar() or 0
     unknown = (await db.execute(
-        select(func.count(Device.id)).where(Device.is_active == True, Device.status == DeviceStatus.UNKNOWN.value)
+        select(func.count(Device.id)).where(Device.is_active == True, Device.status == DeviceStatus.UNKNOWN)
     )).scalar() or 0
 
     active_alerts = (await db.execute(

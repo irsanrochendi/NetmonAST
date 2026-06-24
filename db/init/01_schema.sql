@@ -10,7 +10,7 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 -- 1. DEVICES
 -- ============================================================
 CREATE TYPE device_type AS ENUM ('mikrotik', 'esxi', 'vm_guest');
-CREATE TYPE device_status AS ENUM ('up', 'down', 'unknown');
+CREATE TYPE device_status AS ENUM ('UP', 'DOWN', 'UNKNOWN');
 
 CREATE TABLE devices (
     id              SERIAL PRIMARY KEY,

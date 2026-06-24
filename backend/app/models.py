@@ -25,9 +25,9 @@ class DeviceType(str, enum.Enum):
 
 
 class DeviceStatus(str, enum.Enum):
-    UP = "up"
-    DOWN = "down"
-    UNKNOWN = "unknown"
+    UP = "UP"
+    DOWN = "DOWN"
+    UNKNOWN = "UNKNOWN"
 
 
 class SeverityLevel(str, enum.Enum):
