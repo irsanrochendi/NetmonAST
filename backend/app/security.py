@@ -219,26 +219,15 @@ agent_limiter = RateLimiter(max_requests=300, window_seconds=60)  # Agent push (
 
 # ── Security Headers Middleware ─────────────────────────────────────
 
-class SecurityHeadersMiddleware:
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """Add security headers to all responses."""
 
-    def __init__(self, app):
-        self.app = app
-
-    async def __call__(self, request: Request, call_next):
+    async def dispatch(self, request: Request, call_next):
         response = await call_next(request)
-
-        # Prevent MIME type sniffing
         response.headers["X-Content-Type-Options"] = "nosniff"
-        # Prevent clickjacking
         response.headers["X-Frame-Options"] = "DENY"
-        # XSS protection (legacy browsers)
         response.headers["X-XSS-Protection"] = "1; mode=block"
-        # Content Security Policy
         response.headers["Content-Security-Policy"] = "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:;"
-        # Referrer Policy
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-        # Remove server identification
         response.headers.pop("server", None)
-
         return response
