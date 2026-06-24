@@ -163,7 +163,7 @@ class RateLimiter:
     def is_allowed(self, ip: str) -> tuple[bool, dict]:
         """Check if request is allowed. Returns (allowed, headers)."""
         now = time.time()
-        self._cleanup(ip, ip)
+        self._cleanup(ip, now)
         timestamps = self._requests[ip]
 
         remaining = max(0, self.max_requests - len(timestamps))
