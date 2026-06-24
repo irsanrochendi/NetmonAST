@@ -10,7 +10,7 @@ from app.config import get_settings
 
 settings = get_settings()
 
-# ── Async engine (for FastAPI) ─────────────────────────────────────
+# ── Async engine (for FastAPI + workers) ────────────────────────────
 async_engine = create_async_engine(
     settings.database_url,
     pool_size=20,
@@ -35,8 +35,7 @@ async def get_db() -> AsyncSession:
             await session.close()
 
 
-# ── Sync engine (for poller workers) ───────────────────────────────
-# ── Sync engine (for poller workers) ───────────────────────────────
+# ── Sync engine (for poller workers — kept for compatibility) ───────
 _sync_url = settings.database_url.replace("postgresql+asyncpg", "postgresql+psycopg2").replace("postgresql+aiosqlite", "sqlite")
 sync_engine = create_engine(_sync_url, pool_size=10, max_overflow=5, pool_pre_ping=True)
 SyncSessionLocal = sessionmaker(bind=sync_engine, expire_on_commit=False)
